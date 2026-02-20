@@ -5,43 +5,61 @@ using TMPro;
 
 public class DictionaryDemoUI : MonoBehaviour
 {
-    [Header("UI")]
-    public TMP_InputField inputKey;
-    public TMP_InputField inputValue;
+    [Header("INPUTS")]
+    public TMP_InputField inputID;
+    public TMP_InputField inputMarca;
+    public TMP_InputField inputModelo;
+    public TMP_InputField inputPlaca;
+    public TMP_InputField inputPuertas;
+
+    [Header("VISTAS")]
     public TextMeshProUGUI resultView;
     public TextMeshProUGUI dictView;
 
-    private Dictionary<string, string> dict = new Dictionary<string, string>();
+    private Dictionary<string, Vehiculo> dict = new Dictionary<string, Vehiculo>();
 
     public void AddOrUpdate()
     {
-        string k = inputKey.text.Trim();
-        string v = inputValue.text.Trim();
-        if (string.IsNullOrEmpty(k)) return;
+        if (string.IsNullOrEmpty(inputID.text)) return;
 
-        dict[k] = v; // si existe, actualiza; si no, agrega
-        resultView.text = $"Guardado: [{k}] = {v}";
+        Carro nuevoCarro = new Carro(
+            inputID.text.Trim(),
+            inputMarca.text.Trim(),
+            inputModelo.text.Trim(),
+            inputPlaca.text.Trim(),
+            int.Parse(inputPuertas.text.Trim())
+        );
+
+        dict[nuevoCarro.idVehiculo] = nuevoCarro;
+
+        resultView.text = "Vehículo guardado correctamente";
+        LimpiarInputs();
         ShowDictionary();
     }
 
     public void Get()
     {
-        string k = inputKey.text.Trim();
-        if (string.IsNullOrEmpty(k)) return;
+        string id = inputID.text.Trim();
+        if (string.IsNullOrEmpty(id)) return;
 
-        if (dict.TryGetValue(k, out var v))
-            resultView.text = $"Encontrado: [{k}] = {v}";
+        if (dict.TryGetValue(id, out Vehiculo v))
+        {
+            Carro c = (Carro)v;
+            resultView.text = $"Encontrado: {c.marca} {c.modelo} - {c.placa}";
+        }
         else
-            resultView.text = $"No existe la clave: {k}";
+        {
+            resultView.text = "No existe ese ID";
+        }
     }
 
     public void Remove()
     {
-        string k = inputKey.text.Trim();
-        if (string.IsNullOrEmpty(k)) return;
+        string id = inputID.text.Trim();
+        if (string.IsNullOrEmpty(id)) return;
 
-        bool removed = dict.Remove(k);
-        resultView.text = removed ? $"Eliminado: {k}" : $"No se pudo eliminar (no existe): {k}";
+        bool eliminado = dict.Remove(id);
+        resultView.text = eliminado ? "Vehículo eliminado" : "No existe ese ID";
         ShowDictionary();
     }
 
@@ -55,11 +73,23 @@ public class DictionaryDemoUI : MonoBehaviour
     private void ShowDictionary()
     {
         var sb = new StringBuilder();
-        sb.AppendLine("DICCIONARIO (Clave → Valor)");
+        sb.AppendLine("DICCIONARIO DE VEHÍCULOS");
 
         foreach (var kv in dict)
-            sb.AppendLine($"• {kv.Key} → {kv.Value}");
+        {
+            Carro c = (Carro)kv.Value;
+            sb.AppendLine($"• ID:{c.idVehiculo} | {c.marca} {c.modelo} | Placa: {c.placa} | Puertas: {c.numeroPuertas}");
+        }
 
         dictView.text = sb.ToString();
+    }
+
+    private void LimpiarInputs()
+    {
+        inputID.text = "";
+        inputMarca.text = "";
+        inputModelo.text = "";
+        inputPlaca.text = "";
+        inputPuertas.text = "";
     }
 }

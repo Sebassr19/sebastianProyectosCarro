@@ -5,20 +5,33 @@ using TMPro;
 
 public class StackDemoUI : MonoBehaviour
 {
-    [Header("UI")]
-    public TMP_InputField inputValue;
+    [Header("INPUTS")]
+    public TMP_InputField inputID;
+    public TMP_InputField inputMarca;
+    public TMP_InputField inputModelo;
+    public TMP_InputField inputPlaca;
+    public TMP_InputField inputPuertas;
+
+    [Header("VISTAS")]
     public TextMeshProUGUI stackView;
     public TextMeshProUGUI topView;
 
-    private Stack<string> stack = new Stack<string>();
+    private Stack<Carro> stack = new Stack<Carro>();
 
     public void Push()
     {
-        string v = inputValue.text.Trim();
-        if (string.IsNullOrEmpty(v)) return;
+        if (string.IsNullOrEmpty(inputID.text)) return;
 
-        stack.Push(v);
-        inputValue.text = "";
+        Carro nuevoCarro = new Carro(
+            inputID.text.Trim(),
+            inputMarca.text.Trim(),
+            inputModelo.text.Trim(),
+            inputPlaca.text.Trim(),
+            int.Parse(inputPuertas.text.Trim())
+        );
+
+        stack.Push(nuevoCarro);
+        LimpiarInputs();
         ShowStack();
     }
 
@@ -26,8 +39,8 @@ public class StackDemoUI : MonoBehaviour
     {
         if (stack.Count == 0) return;
 
-        string removed = stack.Pop();
-        Debug.Log("POP: " + removed);
+        Carro eliminado = stack.Pop();
+        Debug.Log("POP: " + eliminado.marca + " " + eliminado.modelo);
         ShowStack();
     }
 
@@ -39,14 +52,33 @@ public class StackDemoUI : MonoBehaviour
 
     private void ShowStack()
     {
-        topView.text = stack.Count > 0 ? $"TOP: {stack.Peek()}" : "TOP: (vacío)";
+        if (stack.Count > 0)
+        {
+            Carro top = stack.Peek();
+            topView.text = $"TOP: {top.marca} {top.modelo} - {top.placa}";
+        }
+        else
+        {
+            topView.text = "TOP: (vacío)";
+        }
 
         var sb = new StringBuilder();
-        sb.AppendLine("PILA (Top → Bottom)");
+        sb.AppendLine("PILA DE CARROS (Top → Bottom)");
 
-        foreach (var item in stack) 
-            sb.AppendLine("• " + item);
+        foreach (var c in stack)
+        {
+            sb.AppendLine($"• ID:{c.idVehiculo} | {c.marca} {c.modelo} | Placa: {c.placa} | Puertas: {c.numeroPuertas}");
+        }
 
         stackView.text = sb.ToString();
+    }
+
+    private void LimpiarInputs()
+    {
+        inputID.text = "";
+        inputMarca.text = "";
+        inputModelo.text = "";
+        inputPlaca.text = "";
+        inputPuertas.text = "";
     }
 }

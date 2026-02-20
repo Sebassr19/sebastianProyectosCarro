@@ -5,20 +5,33 @@ using TMPro;
 
 public class QueueDemoUI : MonoBehaviour
 {
-    [Header("UI")]
-    public TMP_InputField inputValue;
+    [Header("INPUTS")]
+    public TMP_InputField inputID;
+    public TMP_InputField inputMarca;
+    public TMP_InputField inputModelo;
+    public TMP_InputField inputPlaca;
+    public TMP_InputField inputPuertas;
+
+    [Header("VISTAS")]
     public TextMeshProUGUI queueView;
     public TextMeshProUGUI frontView;
 
-    private Queue<string> queue = new Queue<string>();
+    private Queue<Carro> queue = new Queue<Carro>();
 
     public void Enqueue()
     {
-        string v = inputValue.text.Trim();
-        if (string.IsNullOrEmpty(v)) return;
+        if (string.IsNullOrEmpty(inputID.text)) return;
 
-        queue.Enqueue(v);
-        inputValue.text = "";
+        Carro nuevoCarro = new Carro(
+            inputID.text,
+            inputMarca.text,
+            inputModelo.text,
+            inputPlaca.text,
+            int.Parse(inputPuertas.text)
+        );
+
+        queue.Enqueue(nuevoCarro);
+        LimpiarInputs();
         ShowQueue();
     }
 
@@ -26,8 +39,8 @@ public class QueueDemoUI : MonoBehaviour
     {
         if (queue.Count == 0) return;
 
-        string served = queue.Dequeue();
-        Debug.Log("DEQUEUE: " + served);
+        Carro atendido = queue.Dequeue();
+        Debug.Log("DEQUEUE: " + atendido.marca + " " + atendido.modelo);
         ShowQueue();
     }
 
@@ -39,14 +52,33 @@ public class QueueDemoUI : MonoBehaviour
 
     private void ShowQueue()
     {
-        frontView.text = queue.Count > 0 ? $"FRENTE: {queue.Peek()}" : "FRENTE: (vacío)";
+        if (queue.Count > 0)
+        {
+            Carro frente = queue.Peek();
+            frontView.text = $"FRENTE: {frente.marca} {frente.modelo} - {frente.placa}";
+        }
+        else
+        {
+            frontView.text = "FRENTE: (vacío)";
+        }
 
         var sb = new StringBuilder();
-        sb.AppendLine("COLA (Frente → Final)");
+        sb.AppendLine("COLA DE CARROS (Frente → Final)");
 
-        foreach (var item in queue)
-            sb.AppendLine("• " + item);
+        foreach (var c in queue)
+        {
+            sb.AppendLine($"• ID:{c.idVehiculo} | {c.marca} {c.modelo} | Placa: {c.placa} | Puertas: {c.numeroPuertas}");
+        }
 
         queueView.text = sb.ToString();
+    }
+
+    private void LimpiarInputs()
+    {
+        inputID.text = "";
+        inputMarca.text = "";
+        inputModelo.text = "";
+        inputPlaca.text = "";
+        inputPuertas.text = "";
     }
 }
